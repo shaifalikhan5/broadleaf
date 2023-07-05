@@ -1,0 +1,27 @@
+---
+- name: BROADLEAF COMMERCE
+  hosts: all
+  become: yes
+  tasks:
+    - name: cloning from git
+      ansible.builtin.git:
+        repo: https://github.com/BroadleafCommerce/DemoSite.git
+        dest: /home/shaif/broadleaf
+    - name: Install maven
+      ansible.builtin.apt:
+        name: maven
+        update_cache: yes
+        state: present
+    - name: clean install maven
+      ansible.builtin.shell:
+        chdir: /home/shaif/broadleaf
+        cmd: mvn clean install
+    - name: copy the service file
+      ansible.builtin.copy:
+        src: broadleaf.service
+        dest: /etc/systemd/system/
+    - name: broadleaf service
+      ansible.builtin.systemd:
+        name: broadleaf.service
+        daemon-reload: true
+        state: restarted
